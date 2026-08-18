@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculator Pro</title>
+    <!-- App icon thumbnail matching the customized logo style -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3Cfilter id='iconShadow' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='16' stdDeviation='18' flood-color='%23000000' flood-opacity='0.3' /%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23iconShadow)'%3E%3Crect x='56' y='56' width='400' height='400' rx='96' fill='%231a1a1a' /%3E%3C/g%3E%3CclipPath id='cardClip'%3E%3Crect x='56' y='56' width='400' height='400' rx='96' /%3E%3C/clipPath%3E%3Cg clip-path='url(%23cardClip)'%3E%3Crect x='56' y='56' width='200' height='200' fill='%232ca02c' /%3E%3Crect x='132' y='98' width='28' height='116' rx='4' fill='%23ffffff' /%3E%3Crect x='88' y='142' width='116' height='28' rx='4' fill='%23ffffff' /%3E%3Crect x='256' y='56' width='200' height='200' fill='%23d62728' /%3E%3Crect x='298' y='142' width='116' height='28' rx='4' fill='%23ffffff' /%3E%3Crect x='56' y='256' width='200' height='200' fill='%231f77b4' /%3E%3Cg transform='translate(156, 356) rotate(45)'%3E%3Crect x='-14' y='-64' width='28' height='128' rx='4' fill='%23ffffff' /%3E%3Crect x='-64' y='-14' width='128' height='28' rx='4' fill='%23ffffff' /%3E%3C/g%3E%3Crect x='256' y='256' width='200' height='200' fill='%23ff7f0e' /%3E%3Crect x='298' y='326' width='116' height='26' rx='4' fill='%23ffffff' /%3E%3Crect x='298' y='380' width='116' height='26' rx='4' fill='%23ffffff' /%3E%3C/g%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --calc-bg: #202020;
+            --display-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --subtext-color: #888888;
+            --btn-num: #323232;
+            --btn-num-active: #444444;
+            --btn-action: #2a2a2a;
+            --btn-action-text: #3b82f6;
+            --btn-c-text: #ffffff;
+            --btn-op: #d14227;
+            --btn-op-active: #b0351d;
+            --btn-op-text: #3b82f6;
+            --btn-sci-text: #ffffff; 
+            --modal-bg: #1a1a1a;
+            --border-color: #333333;
+        }
+
+        .light-theme {
+            --bg-color: #e0e0e0;
+            --calc-bg: #ffffff;
+            --display-bg: #f5f5f5;
+            --text-color: #000000;
+            --subtext-color: #666666;
+            --btn-num: #e8e8e8;
+            --btn-num-active: #d0d0d0;
+            --btn-action: #d5d5d5;
+            --btn-action-text: #2563eb;
+            --btn-c-text: #000000;
+            --btn-op: #ff6600;
+            --btn-op-active: #cc5200;
+            --btn-op-text: #2563eb;
+            --btn-sci-text: #000000;
+            --modal-bg: #ffffff;
+            --border-color: #dddddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 10px;
+        }
+
+        .calculator-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 950px;
+            background-color: var(--calc-bg);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .app-title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .calc-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sci-toggle-btn, .theme-toggle-btn {
+            background: var(--btn-action);
+            border: none;
+            color: var(--text-color);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .history-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        /* Display Area */
+        .display-area {
+            text-align: right;
+            background-color: var(--display-bg);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 75px;
+        }
+
+        .op-label {
+            min-height: 18px;
+            color: var(--subtext-color);
+            font-size: 0.85rem;
+            word-break: break-all;
+            overflow: hidden;
+        }
+
+        .main-display {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: clamp(1.6rem, 6vw, 2.2rem);
+            text-align: right;
+            font-weight: bold;
+        }
+
+        /* Scientific Panel */
+        .sci-panel {
+            display: none;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .sci-panel.active {
+            display: grid;
+        }
+
+        /* Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .btn {
+            width: 100%;
+            height: 100%;
+            min-height: 56px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--btn-num);
+            color: var(--text-color);
+            font-size: clamp(1.1rem, 4vw, 1.35rem);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn:active {
+            background-color: var(--btn-num-active);
+        }
+
+        .btn-action {
+            background-color: var(--btn-action);
+            color: var(--btn-action-text);
+        }
+
+        .btn-action:active {
+            background-color: var(--btn-num-active);
+        }
+
+        .btn-c {
+            background-color: var(--btn-action);
+            color: var(--btn-c-text);
+            font-weight: normal;
+        }
+
+        .btn-c:active {
+            background-color: var(--btn-num-active);
+        }
+
+        .btn-operator {
+            background-color: var(--btn-action);
+            color: var(--btn-op-text);
+        }
+
+        .btn-operator:active {
+            background-color: var(--btn-num-active);
+        }
+
+        .btn-equals {
+            background-color: var(--btn-op);
+            color: #ffffff;
+        }
+
+        .btn-equals:active {
+            background-color: var(--btn-op-active);
+        }
+
+        .btn-sci {
+            background-color: var(--btn-action);
+            color: var(--btn-sci-text);
+            font-size: 0.9rem;
+            font-weight: normal; 
+            min-height: 38px;
+        }
+
+        .btn-sci:active {
+            background-color: var(--btn-num-active);
+        }
+
+        /* Instant History Modal */
+        .history-modal {
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 130px);
+            background-color: var(--modal-bg);
+            border-top: 2px solid var(--border-color);
+            border-radius: 20px 20px 0 0;
+            padding: 16px;
+            box-shadow: 0px -4px 16px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            visibility: hidden;
+            transition: visibility 0s;
+        }
+
+        .history-modal.active {
+            bottom: 0;
+            visibility: visible;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .close-modal-btn {
+            background: var(--btn-action);
+            border: none;
+            color: var(--text-color);
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .history-list {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .history-list li {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px dashed var(--border-color);
+            word-break: break-all;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+            user-select: text;
+        }
+
+        .history-list li:hover {
+            background-color: var(--btn-num);
+        }
+
+        .clear-hist-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--btn-op);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        // Check local storage immediately to avoid flash of wrong theme
+        (function() {
+            const savedTheme = localStorage.getItem('calcTheme');
+            if (savedTheme === 'dark') {
+                document.documentElement.style.backgroundColor = '#121212';
+            } else {
+                document.documentElement.style.backgroundColor = '#e0e0e0';
+            }
+        })();
+    </script>
+</head>
+<body class="light-theme">
+
+    <div class="calculator-container">
+        
+        <!-- Top Toolbar -->
+        <div class="top-bar">
+            <div class="app-title-area">
+                <svg class="calc-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="56" y="56" width="400" height="400" rx="96" fill="#1a1a1a"/>
+                    <clipPath id="cardClip">
+                        <rect x="56" y="56" width="400" height="400" rx="96"/>
+                    </clipPath>
+                    <g clip-path="url(#cardClip)">
+                        <rect x="56" y="56" width="200" height="200" fill="#2ca02c"/>
+                        <rect x="132" y="98" width="28" height="116" rx="4" fill="#ffffff"/>
+                        <rect x="88" y="142" width="116" height="28" rx="4" fill="#ffffff"/>
+                        <rect x="256" y="56" width="200" height="200" fill="#d62728"/>
+                        <rect x="298" y="142" width="116" height="28" rx="4" fill="#ffffff"/>
+                        <rect x="56" y="256" width="200" height="200" fill="#1f77b4"/>
+                        <g transform="translate(156, 356) rotate(45)">
+                            <rect x="-14" y="-64" width="28" height="128" rx="4" fill="#ffffff"/>
+                            <rect x="-64" y="-14" width="128" height="28" rx="4" fill="#ffffff"/>
+                        </g>
+                        <rect x="256" y="256" width="200" height="200" fill="#ff7f0e"/>
+                        <rect x="298" y="326" width="116" height="26" rx="4" fill="#ffffff"/>
+                        <rect x="298" y="380" width="116" height="26" rx="4" fill="#ffffff"/>
+                    </g>
+                </svg>
+                <span>Calculator Pro</span>
+            </div>
+            <div class="top-controls">
+                <button class="sci-toggle-btn" id="sciToggleBtn" onclick="toggleScientific()">Scientific</button>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+                <button class="history-icon-btn" onclick="toggleHistory()" title="History">🕒</button>
+            </div>
+        </div>
+
+        <!-- Display Header & Inputs -->
+        <div class="display-area">
+            <div id="labelop" class="op-label"></div>
+            <input type="text" id="textBox1" class="main-display" value="0" readonly>
+        </div>
+
+        <!-- Scientific Panel -->
+        <div class="sci-panel" id="sciPanel">
+            <button class="btn btn-sci" onclick="handleScientificOp('sin')">sin</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('cos')">cos</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('tan')">tan</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('√x')">√</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('abs')">|x|</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('xy')">x<sup>ʸ</sup></button>
+            <button class="btn btn-sci" onclick="handleScientificOp('log')">log</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('ln')">ln</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('π')">π</button>
+            <button class="btn btn-sci" onclick="handleScientificOp('e')">e</button>
+        </div>
+
+        <!-- Button Grid -->
+        <div class="button-grid">
+            <button class="btn btn-c" onclick="clearDisplay()">C</button>
+            <button class="btn btn-sci" onclick="backspace()" title="Backspace" style="stroke-width: 1.5; font-weight: normal;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                    <line x1="18" y1="9" x2="12" y2="15"></line>
+                    <line x1="12" y1="9" x2="18" y2="15"></line>
+                </svg>
+            </button>
+            <button class="btn btn-action" onclick="handleBinaryOp('%')">%</button>
+            <button class="btn btn-operator" onclick="handleBinaryOp('÷')">÷</button>
+
+            <button class="btn" onclick="appendNumber('7')">7</button>
+            <button class="btn" onclick="appendNumber('8')">8</button>
+            <button class="btn" onclick="appendNumber('9')">9</button>
+            <button class="btn btn-operator" onclick="handleBinaryOp('x')">x</button>
+
+            <button class="btn" onclick="appendNumber('4')">4</button>
+            <button class="btn" onclick="appendNumber('5')">5</button>
+            <button class="btn" onclick="appendNumber('6')">6</button>
+            <button class="btn btn-operator" onclick="handleBinaryOp('-')">-</button>
+
+            <button class="btn" onclick="appendNumber('1')">1</button>
+            <button class="btn" onclick="appendNumber('2')">2</button>
+            <button class="btn" onclick="appendNumber('3')">3</button>
+            <button class="btn btn-operator" onclick="handleBinaryOp('+')">+</button>
+
+            <button class="btn" onclick="toggleSign()">±</button>
+            <button class="btn" onclick="appendNumber('0')">0</button>
+            <button class="btn" onclick="appendDecimal()">.</button>
+            <button class="btn btn-equals" onclick="calculate()">=</button>
+        </div>
+
+        <!-- Instant History Modal -->
+        <div class="history-modal" id="historyModal">
+            <div class="modal-header">
+                <h3>Calculation History</h3>
+                <button class="close-modal-btn" onclick="toggleHistory()">✕ Close</button>
+            </div>
+            <ul id="listhistory" class="history-list"></ul>
+            <button class="clear-hist-btn" onclick="clearHistoryLog()">Clear History</button>
+        </div>
+
+    </div>
+
+    <script>
+        let resultValue = 0;
+        let opPerformed = "";
+        let isResult = false;
+        let isopPerformed = false;
+        let isPowerMode = false;
+
+        const textBox1 = document.getElementById('textBox1');
+        const labelop = document.getElementById('labelop');
+        const listHistory = document.getElementById('listhistory');
+        const historyModal = document.getElementById('historyModal');
+        const themeBtn = document.getElementById('themeBtn');
+        const sciPanel = document.getElementById('sciPanel');
+        const sciToggleBtn = document.getElementById('sciToggleBtn');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadThemePreference();
+            loadHistory();
+        });
+
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('calcTheme');
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('light-theme');
+                themeBtn.innerText = "☀️";
+            } else {
+                document.body.classList.add('light-theme');
+                themeBtn.innerText = "🌙";
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            if (document.body.classList.contains('light-theme')) {
+                themeBtn.innerText = "🌙";
+                localStorage.setItem('calcTheme', 'light');
+            } else {
+                themeBtn.innerText = "☀️";
+                localStorage.setItem('calcTheme', 'dark');
+            }
+        }
+
+        function toggleScientific() {
+            sciPanel.classList.toggle('active');
+            if (sciPanel.classList.contains('active')) {
+                sciToggleBtn.innerText = "Standard";
+            } else {
+                sciToggleBtn.innerText = "Scientific";
+            }
+        }
+
+        function toggleHistory() {
+            historyModal.classList.toggle('active');
+        }
+
+        function clearHistoryLog() {
+            listHistory.innerHTML = "";
+            localStorage.removeItem('calcHistory');
+        }
+
+        function appendNumber(num) {
+            if (textBox1.value === "0" || isResult || isopPerformed) {
+                textBox1.value = num;
+                isResult = false;
+                isopPerformed = false;
+            } else {
+                textBox1.value += num;
+            }
+        }
+
+        function appendDecimal() {
+            if (isResult || isopPerformed) {
+                textBox1.value = "0.";
+                isResult = false;
+                isopPerformed = false;
+            } else if (!textBox1.value.includes('.')) {
+                textBox1.value += '.';
+            }
+        }
+
+        function clearDisplay() {
+            textBox1.value = "0";
+            labelop.innerText = "";
+            resultValue = 0;
+            opPerformed = "";
+            isResult = false;
+            isopPerformed = false;
+            isPowerMode = false;
+        }
+
+        function backspace() {
+            if (isResult) {
+                textBox1.value = "0";
+                isResult = false;
+                return;
+            }
+            if (textBox1.value.length > 1) {
+                textBox1.value = textBox1.value.slice(0, -1);
+            } else {
+                textBox1.value = "0";
+            }
+        }
+
+        function toggleSign() {
+            let val = parseFloat(textBox1.value);
+            if (!isNaN(val)) {
+                textBox1.value = (val * -1).toString();
+            }
+        }
+
+        function handleBinaryOp(op) {
+            resultValue = parseFloat(textBox1.value);
+            opPerformed = op;
+            isPowerMode = false;
+            labelop.innerText = resultValue + " " + opPerformed;
+            isopPerformed = true;
+        }
+
+        function handleScientificOp(op) {
+            let inputVal = parseFloat(textBox1.value);
+            let result = 0;
+            let historyEntry = "";
+            let labelText = "";
+
+            switch (op) {
+                case "sin":
+                    result = Math.sin(inputVal * Math.PI / 180);
+                    historyEntry = "sin(" + inputVal + "°) = " + result;
+                    labelText = "sin(" + inputVal + "°)";
+                    break;
+                case "cos":
+                    result = Math.cos(inputVal * Math.PI / 180);
+                    historyEntry = "cos(" + inputVal + "°) = " + result;
+                    labelText = "cos(" + inputVal + "°)";
+                    break;
+                case "tan":
+                    result = Math.tan(inputVal * Math.PI / 180);
+                    historyEntry = "tan(" + inputVal + "°) = " + result;
+                    labelText = "tan(" + inputVal + "°)";
+                    break;
+                case "log":
+                    if (inputVal > 0) {
+                        result = Math.log10(inputVal);
+                        historyEntry = "log(" + inputVal + ") = " + result;
+                        labelText = "log(" + inputVal + ")";
+                    } else {
+                        textBox1.value = "Invalid input";
+                        return;
+                    }
+                    break;
+                case "ln":
+                    if (inputVal > 0) {
+                        result = Math.log(inputVal);
+                        historyEntry = "ln(" + inputVal + ") = " + result;
+                        labelText = "ln(" + inputVal + ")";
+                    } else {
+                        textBox1.value = "Invalid input";
+                        return;
+                    }
+                    break;
+                case "√x":
+                    if (inputVal >= 0) {
+                        result = Math.sqrt(inputVal);
+                        historyEntry = "√(" + inputVal + ") = " + result;
+                        labelText = "√(" + inputVal + ")";
+                    } else {
+                        textBox1.value = "Invalid input";
+                        return;
+                    }
+                    break;
+                case "xy":
+                    resultValue = inputVal;
+                    isPowerMode = true;
+                    opPerformed = "power";
+                    labelop.innerText = resultValue + " ^";
+                    isopPerformed = true;
+                    return;
+                case "π":
+                    result = Math.PI;
+                    textBox1.value = result.toString();
+                    isResult = true;
+                    return;
+                case "e":
+                    result = Math.E;
+                    textBox1.value = result.toString();
+                    isResult = true;
+                    return;
+                case "abs":
+                    result = Math.abs(inputVal);
+                    historyEntry = "abs(" + inputVal + ") = " + result;
+                    labelText = "abs(" + inputVal + ")";
+                    break;
+            }
+
+            textBox1.value = result.toString();
+            labelop.innerText = labelText;
+            addHistory(historyEntry, labelText + " =", true);
+            isResult = true;
+        }
+
+        function calculate() {
+            if (isPowerMode) {
+                let exponentVal = parseFloat(textBox1.value);
+                let result = Math.pow(resultValue, exponentVal);
+                let historyEntry = resultValue + " ^ " + exponentVal + " = " + result;
+                let currentLabel = resultValue + " ^ " + exponentVal + " =";
+
+                labelop.innerText = currentLabel;
+                textBox1.value = result.toString();
+                addHistory(historyEntry, currentLabel, true);
+
+                isResult = true;
+                opPerformed = "";
+                isPowerMode = false;
+                return;
+            }
+
+            if (!opPerformed) return;
+
+            let secondValue = parseFloat(textBox1.value);
+            let result = 0;
+            let historyEntry = "";
+            let currentLabel = resultValue + " " + opPerformed + " " + secondValue + " =";
+
+            switch (opPerformed) {
+                case "+":
+                    result = resultValue + secondValue;
+                    historyEntry = resultValue + " + " + secondValue + " = " + result;
+                    break;
+                case "-":
+                    result = resultValue - secondValue;
+                    historyEntry = resultValue + " - " + secondValue + " = " + result;
+                    break;
+                case "x":
+                    result = resultValue * secondValue;
+                    historyEntry = resultValue + " × " + secondValue + " = " + result;
+                    break;
+                case "÷":
+                    if (secondValue !== 0) {
+                        result = resultValue / secondValue;
+                        historyEntry = resultValue + " ÷ " + secondValue + " = " + result;
+                    } else {
+                        textBox1.value = "Cannot divide by zero";
+                        return;
+                    }
+                    break;
+                case "%":
+                    result = resultValue * (secondValue / 100);
+                    historyEntry = resultValue + " % " + secondValue + " = " + result;
+                    break;
+            }
+
+            labelop.innerText = currentLabel;
+            textBox1.value = result.toString();
+            addHistory(historyEntry, currentLabel, true);
+
+            isResult = true;
+            opPerformed = "";
+        }
+
+        function addHistory(entry, labelText, saveToStorage = false) {
+            let li = document.createElement('li');
+            li.textContent = entry;
+            
+            li.onclick = function() {
+                let parts = entry.split("=");
+                if (parts.length > 1) {
+                    let recalledValue = parts[parts.length - 1].trim();
+                    textBox1.value = recalledValue;
+                    labelop.innerText = labelText;
+                    isResult = true;
+                    toggleHistory(); 
+                }
+            };
+
+            listHistory.appendChild(li);
+            listHistory.scrollTop = listHistory.scrollHeight;
+
+            if (saveToStorage) {
+                saveHistoryToLocalStorage(entry, labelText);
+            }
+        }
+
+        function saveHistoryToLocalStorage(entry, labelText) {
+            let historyData = JSON.parse(localStorage.getItem('calcHistory')) || [];
+            historyData.push({ entry, labelText });
+            localStorage.setItem('calcHistory', JSON.stringify(historyData));
+        }
+
+        function loadHistory() {
+            let historyData = JSON.parse(localStorage.getItem('calcHistory')) || [];
+            historyData.forEach(item => {
+                addHistory(item.entry, item.labelText, false);
+            });
+        }
+    </script>
+</body>
+</html>
